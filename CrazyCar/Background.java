@@ -1,0 +1,196 @@
+import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+
+/**
+ * Write a description of class Background here.
+ * 
+ * @author (Abdullah Syafii) 
+ * @version (April 2017)
+ */
+public class Background extends World
+{
+    
+    // Membuat variabel bg, menyimpan data gambar yang bernama background.png.
+    private GreenfootImage bg = new GreenfootImage("road.png"); 
+    // Variabel yang menentukan kalah atau tidak.
+    private boolean lost = false;
+    // Membuat variabel bgHeight, data tinggi gambar background.png yaitu 800.
+    private int bgHeight = bg.getHeight();
+    // Membuat variabel baseY.
+    private int baseY = 0;
+    // Membuat variabel scrollSpeed, kecepatan pergerakan gambar background.
+    private int scrollSpeed = 10;
+     /**
+     * Konstructor for objects of class Background.
+     * 
+     */
+    // Membuat variabel counter.
+    private Counter counter = new Counter("Score = ");
+    // Membuat variabel waktu.
+    private int addCarTimer = 0;
+    private int addPohonTimer = 0;
+    private int addTrukTimer = 0;
+    private int addbonusTimer = 0;
+    // Membuat variabel score.
+    private int score = 0;
+    private GreenfootSound soundtrack = new GreenfootSound("musik.mp3");
+
+    public Background()
+    {    
+        // Membuat background dengan ukuran 400 x 600 cell.
+        // 1 cell berarti 1 x 1 pixel.
+        super(520, 550, 1, false); 
+        // Memanggil method update().
+        update();
+        prepare();
+    }
+     /**
+     * Menambahkan objek yang dibutuhkan.
+     */
+    private void prepare()
+    {
+        addObject(new player(), getWidth()/2, 490);
+        addObject(counter, 60, 30);
+    }
+    /**
+     * Melakukan apa saja yang bisa dilakukan oleh objek Background.
+     * Method ini dijalankan setiap kali tombol 'Act' atau 'Run' ditekan.
+     */
+    public void act()
+    { 
+        if(!lost)
+        {
+            // Memanggil method scroll.
+            scroll();
+            updateCounter();
+            addMovingObject();
+            playMusic();
+        }
+    }
+    /**
+     * Menggerakkan gambar dari atas ke bawah.
+     */
+    private void scroll()
+    {
+        // Mengganti nilai baseY.
+        baseY = (baseY + bgHeight + scrollSpeed) % bgHeight;
+        // Memanggil method update().
+        update();
+    }
+    /**
+     * Merubah tampilan score pada layar.
+     */
+    private void updateCounter()
+    {
+        counter.setValue(score);
+    }
+
+   /**
+     * Menambahkan objek-objek.
+     */
+    private void addMovingObject()
+    {
+        addCarTimer++;
+        addPohonTimer++;
+        addTrukTimer++;
+        addbonusTimer++;
+        // Menambahkan objek car.
+        if(addCarTimer > 150)
+        {
+            if(Greenfoot.getRandomNumber(100) > 98)
+            {
+                int x = Greenfoot.getRandomNumber(160)+160; // 165 - 224
+                int y = 0;
+                addObject(new Car(), x, y);
+                addCarTimer = 0;
+            }
+        }
+        // Menambahkan objek pohon1.
+        if(addPohonTimer > 150 && getObjects(Pohon.class).isEmpty())
+        {
+            if(Greenfoot.getRandomNumber(60) > 90)
+            {
+                int x = Greenfoot.getRandomNumber(90)+200; // 0 - 84
+                int y = 0;
+                addObject(new Pohon(), x, y);
+                addPohonTimer = 0;
+            }
+        }
+        // Menambahkan objek car2.
+        if(addTrukTimer > 150 && getObjects(car2.class).isEmpty())
+        {
+            if(Greenfoot.getRandomNumber(50) > 45)
+            {
+                int x = Greenfoot.getRandomNumber(120)+150; // 165 - 224
+                int y = 0;
+                addObject(new car2(), x, y);
+                addTrukTimer = 0;
+            }
+        }
+        // Menambahkan objek Bonus.
+        if(addbonusTimer > 50)
+        {
+            if(Greenfoot.getRandomNumber(100) > 98)
+            {
+                int x = Greenfoot.getRandomNumber(150)+210; // 165 - 224
+                int y = 0;
+                addObject(new bonus(), x, y);
+                addbonusTimer = 0;
+            }
+        }
+    }
+     /**
+     * Memutar musik secara terus menerus.
+     */
+    private void playMusic()
+    {
+        soundtrack.playLoop();
+    }
+     /**
+     * Menghentikan musik.
+     */
+    private void stopMusic()
+    {
+        soundtrack.stop();
+    }
+
+   /**
+     * Merubah gambar sesuai dengan informasi yang diberikan.
+     */
+    private void update()
+    {
+        if(baseY != 0)
+        {
+            getBackground().drawImage(bg, 0, baseY - bgHeight);
+        }
+        if(baseY < getHeight())
+        {
+            getBackground().drawImage(bg, 0, baseY);
+        }
+      }
+    /**
+   * Method ini dipanggil jika permainan sudah selesai/kalah.
+     * Ketika dipanggil, akan menghapus semua objek yang ada di layar,
+     * kemudian menambahkan objek GameOver yang menampilkan score akhir.
+     */
+    public void lose()
+    { 
+        lost = true;
+        stopMusic();
+        // Menghapus semua objek yang ada di layar.
+        removeObjects(getObjects(null));
+        // Menambahkan objek GameOver.
+        addObject(new GameOver (score), getWidth()/2, getHeight()/2);
+        
+    }
+    /**
+     * Method ini dipanggil ketika objek Player menyentuh objek Bonus.
+     * Ketika dipanggil, akan menambahkan score sebesar 10.
+     */
+    public void addScore()
+    {
+        // Merubah nilai variabel score.
+        // score baru = score lama + 10.
+        score += 10;
+    }
+
+}
